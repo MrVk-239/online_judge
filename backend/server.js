@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import authRoutes from './routes/auth.js';
 import problemRoutes from './routes/problem.js';
+import testcaseRoutes from './routes/testcaseRoutes.js';
 
 
 dotenv.config();
@@ -13,6 +14,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
+app.use('/api/testcases', testcaseRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is working!');
