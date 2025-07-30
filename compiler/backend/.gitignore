@@ -1,0 +1,16 @@
+# Node modules
+node_modules/
+
+# Output folders or generated files
+output/
+output.exe
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# OS/system files
+.DS_Store
+Thumbs.db
