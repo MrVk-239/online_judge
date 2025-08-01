@@ -1,19 +1,18 @@
-// routes/testcaseRoutes.js
+// routes/testcase.js
 import express from 'express';
 import {
-  addTestcase,
   getTestcasesByProblem,
+  createTestcase,
   updateTestcase,
   deleteTestcase,
 } from '../controllers/testcaseController.js';
-import { protect } from '../middleware/authMiddleware.js';
-import { isAdmin } from '../middleware/authMiddleware.js';
+import { protect, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', protect, isAdmin, addTestcase);
-router.get('/:problemId', protect, isAdmin, getTestcasesByProblem);
-router.put('/:id', protect, isAdmin, updateTestcase); // Edit
-router.delete('/:id', protect, isAdmin, deleteTestcase); // Delete
+router.get('/problem/:problemId', protect, isAdmin, getTestcasesByProblem);
+router.post('/', protect, isAdmin, createTestcase);
+router.put('/:id', protect, isAdmin, updateTestcase);
+router.delete('/:id', protect, isAdmin, deleteTestcase);
 
 export default router;

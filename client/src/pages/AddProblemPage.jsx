@@ -1,155 +1,181 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const AddProblemPage = () => {
-  const [formData, setFormData] = useState({
+  const { user,token } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const backendUrl = import.meta.env.VITE_BACKEND_URL
+  console.log(backendUrl);
+
+  const [form, setForm] = useState({
     title: '',
     description: '',
     inputFormat: '',
     outputFormat: '',
+    constraints: '',
     sampleInput: '',
     sampleOutput: '',
-    constraints: '',
-    difficulty: '',
+    difficulty: 'Easy',
     tags: '',
   });
 
-  const navigate = useNavigate();
-  const { token } = useSelector((state) => state.auth); // ✅ Get token
-
+  const [testcases, setTestcases] = useState([
+    { input: '', output: '' },
+  ]);
 
   const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
-    });
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleTestcaseChange = (index, e) => {
+    const updated = [...testcases];
+    updated[index][e.target.name] = e.target.value;
+    setTestcases(updated);
+  };
+
+  const addTestcase = () => {
+    setTestcases([...testcases, { input: '', output: '' }]);
+  };
+
+  const removeTestcase = (index) => {
+    const updated = [...testcases];
+    updated.splice(index, 1);
+    setTestcases(updated);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const dataToSend = {
-      ...formData,
-      tags: formData.tags
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag.length > 0)
-    };
-
     try {
-      await axios.post(
-        'http://localhost:5000/api/problems',
-        dataToSend,
+      const payload = {
+        ...form,
+        tags: form.tags.split(',').map((tag) => tag.trim()),
+        testcases,
+      };
+
+      const res = await axios.post(`${backendUrl}/api/problems`
+        ,
+        payload,
         {
           headers: {
-            Authorization: `Bearer ${token}` 
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      alert("Problem added!");
-      navigate('/problems');
+
+      navigate(`/problems/${res.data._id}`);
     } catch (err) {
-      console.error(err);
-      alert("Error adding problem.");
+      console.error('Error creating problem:', err.response?.data || err.message);
+      alert('Failed to create problem');
     }
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 bg-white rounded shadow">
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded shadow">
       <h2 className="text-2xl font-bold mb-4">Add New Problem</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Problem Fields */}
+        {[
+          { label: 'Title', name: 'title' },
+          { label: 'Description', name: 'description', type: 'textarea' },
+          { label: 'Input Format', name: 'inputFormat', type: 'textarea' },
+          { label: 'Output Format', name: 'outputFormat', type: 'textarea' },
+          { label: 'Constraints', name: 'constraints', type: 'textarea' },
+          { label: 'Sample Input', name: 'sampleInput', type: 'textarea' },
+          { label: 'Sample Output', name: 'sampleOutput', type: 'textarea' },
+        ].map(({ label, name, type }) => (
+          <div key={name}>
+            <label className="block font-semibold">{label}</label>
+            {type === 'textarea' ? (
+              <textarea
+                name={name}
+                value={form[name]}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+              />
+            ) : (
+              <input
+                name={name}
+                value={form[name]}
+                onChange={handleChange}
+                className="w-full border p-2 rounded"
+              />
+            )}
+          </div>
+        ))}
 
-        <input 
-          type="text" 
-          name="title" 
-          placeholder="Title" 
-          value={formData.title} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded" 
-          required
-        />
+        {/* Difficulty */}
+        <div>
+          <label className="block font-semibold">Difficulty</label>
+          <select
+            name="difficulty"
+            value={form.difficulty}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+          >
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
 
-        <textarea 
-          name="description" 
-          placeholder="Description" 
-          value={formData.description} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
+        {/* Tags */}
+        <div>
+          <label className="block font-semibold">Tags (comma-separated)</label>
+          <input
+            name="tags"
+            value={form.tags}
+            onChange={handleChange}
+            className="w-full border p-2 rounded"
+            placeholder="e.g., array, dp, sorting"
+          />
+        </div>
 
-        <input 
-          type="text" 
-          name="inputFormat" 
-          placeholder="Input Format" 
-          value={formData.inputFormat} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded" 
-          required
-        />
+        {/* Testcases */}
+        <div>
+          <label className="block font-bold">Testcases</label>
+          {testcases.map((tc, idx) => (
+            <div key={idx} className="mb-4 border p-2 rounded bg-gray-50">
+              <label className="block font-medium">Input</label>
+              <textarea
+                name="input"
+                value={tc.input}
+                onChange={(e) => handleTestcaseChange(idx, e)}
+                className="w-full border p-2 mb-2"
+              />
+              <label className="block font-medium">Output</label>
+              <textarea
+                name="output"
+                value={tc.output}
+                onChange={(e) => handleTestcaseChange(idx, e)}
+                className="w-full border p-2 mb-2"
+              />
+              {testcases.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeTestcase(idx)}
+                  className="text-red-600 text-sm"
+                >
+                  Delete Testcase
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addTestcase}
+            className="text-blue-600 mt-2"
+          >
+            + Add Another Testcase
+          </button>
+        </div>
 
-        <input 
-          type="text" 
-          name="outputFormat" 
-          placeholder="Output Format" 
-          value={formData.outputFormat} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded" 
-          required
-        />
-
-        <textarea 
-          name="sampleInput" 
-          placeholder="Sample Input" 
-          value={formData.sampleInput} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
-
-        <textarea 
-          name="sampleOutput" 
-          placeholder="Sample Output" 
-          value={formData.sampleOutput} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
-        />
-
-        <textarea 
-          name="constraints" 
-          placeholder="Constraints (optional)" 
-          value={formData.constraints} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-        />
-
-        <select 
-          name="difficulty" 
-          value={formData.difficulty} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded"
-          required
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
         >
-          <option value="">Select Difficulty</option>
-          <option value="Easy">Easy</option>
-          <option value="Medium">Medium</option>
-          <option value="Hard">Hard</option>
-        </select>
-
-        <input 
-          type="text" 
-          name="tags" 
-          placeholder="Tags (comma separated)" 
-          value={formData.tags} 
-          onChange={handleChange}
-          className="w-full border px-3 py-2 rounded" 
-        />
-
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          Add Problem
+          Create Problem
         </button>
       </form>
     </div>

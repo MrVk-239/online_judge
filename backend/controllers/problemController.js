@@ -1,5 +1,6 @@
 // backend/controllers/problemController.js
 import Problem from '../models/problem.js';
+import Testcase from '../models/Testcase.js';
 
 export const getAllProblems = async (req, res) => {
   try {
@@ -19,27 +20,16 @@ export const getProblemById = async (req, res) => {
     res.status(500).json({ msg: err.message });
   }
 };
-
-// CREATE (Admin only)
 export const createProblem = async (req, res) => {
   try {
     const {
-      title,
-      description,
-      inputFormat,
-      outputFormat,
-      sampleInput,
-      sampleOutput,
-      constraints,
-      difficulty,
-      tags
+      title, description, inputFormat, outputFormat,
+      sampleInput, sampleOutput, constraints, difficulty,
+      tags, testcases = []
     } = req.body;
+    console.log(req.user)
 
-    if (!title || !description || !inputFormat || !outputFormat || !sampleInput || !sampleOutput) {
-      return res.status(400).json({ msg: 'All required fields must be provided' });
-    }
-
-    const newProblem = new Problem({
+    const problem = new Problem({
       title,
       description,
       inputFormat,
@@ -49,13 +39,25 @@ export const createProblem = async (req, res) => {
       constraints,
       difficulty,
       tags,
-      creator: req.user._id, // Track the creator (admin)
+      creator: req.user.id, 
     });
 
-    const saved = await newProblem.save();
-    return res.status(201).json(saved);
+    await problem.save();
+
+    // Save testcases if provided
+    if (testcases.length > 0) {
+      const testcaseDocs = testcases.map(tc => ({
+        input: tc.input,
+        output: tc.output,
+        problemId: problem._id
+      }));
+      await Testcase.insertMany(testcaseDocs);
+    }
+
+    res.status(201).json(problem);
   } catch (err) {
-    res.status(400).json({ msg: err.message });
+    console.log(err);
+    res.status(500).json({ message: 'Error creating problem', error:err });
   }
 };
 
