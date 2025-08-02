@@ -10,7 +10,7 @@ import { protect, isAdmin } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.get('/problem/:problemId', protect, isAdmin, getTestcasesByProblem);
+router.get('/problem/:problemId', protect, getTestcasesByProblem);
 router.post('/', protect, isAdmin, createTestcase);
 router.put('/:id', protect, isAdmin, updateTestcase);
 router.delete('/:id', protect, isAdmin, deleteTestcase);
