@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import problemRoutes from './routes/problem.js';
 import testcaseRoutes from './routes/testcaseRoutes.js';
 import morgan from 'morgan';
+import submissionRoutes from './routes/submissionRoutes.js';
 
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use(morgan("dev"));
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/testcases', testcaseRoutes);
+app.use('/api', submissionRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is working!');

@@ -10,6 +10,8 @@ import ProblemList from "./pages/ProblemList";
 import AddProblemPage from "./pages/AddProblemPage";
 import ProblemDetailPage from "./pages/ProblemDetailPage";
 import EditProblemPage from "./pages/EditProblemPage";
+import MySubmissionsPage from "./pages/MySubmissionPage";
+import SubmissionDetailPage from "./pages/SubmissionDetailPage";
 
 
 
@@ -30,6 +32,10 @@ const App = () => {
           }
         />
         <Route path="/add-problem" element={<AddProblemPage />} />
+        <Route path="/submissions/:problemId" element={<MySubmissionsPage />} />
+        <Route path="/submissionDetail/:id" element={<SubmissionDetailPage />} />
+
+
         <Route
           path="/problems/:id"
           element={
