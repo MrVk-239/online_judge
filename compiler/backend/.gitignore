@@ -4,6 +4,7 @@ node_modules/
 # Output folders or generated files
 output/
 output.exe
+codes/
 
 # Environment variables
 .env
