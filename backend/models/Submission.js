@@ -6,7 +6,6 @@ const submissionSchema = new mongoose.Schema({
   language: { type: String, required: true },
   code: { type: String, required: true },
   passed: { type: Boolean, required: true },
-  timestamp: { type: Date, default: Date.now },
-});
+}, { timestamps: true });  
 
 export default mongoose.model('Submission', submissionSchema);

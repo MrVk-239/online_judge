@@ -21,7 +21,6 @@ const SubmissionDetailPage = () => {
   const [submission, setSubmission] = useState(null);
 
   useEffect(() => {
-    console.log("Submission ID from URL:", id);
     const fetchSubmission = async () => {
   try {
     const token = localStorage.getItem('token'); // or wherever you're storing the JWT
@@ -30,7 +29,6 @@ const SubmissionDetailPage = () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log("API response:", res.data); 
     setSubmission(res.data);
   } catch (err) {
     console.error('Error fetching submission', err);

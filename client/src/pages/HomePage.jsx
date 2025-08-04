@@ -8,8 +8,8 @@ const HomePage = () => {
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white shadow-lg rounded-xl p-8 w-80 text-center space-y-4">
-        <h1 className="text-2xl font-bold mb-4 text-blue-600">
-          Welcome to Online Judge 
+        <h1 className="text-2xl font-bold text-blue-600 mb-4">
+          Welcome to Online Judge
         </h1>
 
         {!user ? (
@@ -29,7 +29,7 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="space-y-4">
-            <p className="text-lg">Hello, {user.name}</p>
+            <p className="text-lg">Hello, {user.username}</p>
             <Link
               to="/dashboard"
               className="block bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded"

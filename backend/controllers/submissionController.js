@@ -22,7 +22,7 @@ export const getMySubmissions = async (req, res) => {
     const userId = req.user._id;
     const problemId = req.params.problemId;
 
-    const submissions = await Submission.find({ userId: userId, problemId: problemId });
+    const submissions = await Submission.find({ userId: userId, problemId: problemId }).populate('problemId', 'title');
     res.status(200).json(submissions);
 
   } catch (error) {
@@ -48,5 +48,18 @@ export const getSubmissionById = async (req, res) => {
   } catch (err) {
     console.error('Error fetching submission:', err);
     res.status(500).json({ error: 'Failed to fetch submission' });
+  }
+};
+
+export const getAcceptedProblems = async (req, res) => {
+  try {
+    const accepted = await Submission.find({
+      userId: req.user._id,
+      passed: true,
+    }).distinct('problemId');
+
+    res.status(200).json(accepted); // array of problemIds
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch accepted problems' });
   }
 };

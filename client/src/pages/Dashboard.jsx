@@ -14,44 +14,43 @@ const Dashboard = () => {
     navigate("/login");
   };
 
-  const goToProblems = () => {
-    navigate("/problems");
-  };
-
-  const goToAddProblem = () => {
-    navigate("/add-problem");
-  };
+  const goToProblems = () => navigate("/problems");
+  const goToAddProblem = () => navigate("/add-problem");
 
   return (
-    <div className="p-8 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">
-        👋 Welcome, {user?.username || "User"}!
-      </h1>
-      <p className="mb-4">You are now inside the dashboard.</p>
+    <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 px-4">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 className="text-3xl font-semibold mb-2 text-center text-indigo-700">
+          👋 Welcome, {user?.username || "User"}!
+        </h1>
+        <p className="text-center text-gray-600 mb-6">
+          You are now inside the dashboard.
+        </p>
 
-      <div className="flex flex-col space-y-4">
-        <button
-          onClick={goToProblems}
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-        >
-          View Problems
-        </button>
-
-        {user?.role === "admin" && (
+        <div className="flex flex-col gap-4">
           <button
-            onClick={goToAddProblem}
-            className="bg-green-600 text-white px-4 py-2 rounded"
+            onClick={goToProblems}
+            className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded transition duration-200"
           >
-            ➕ Add Problem
+            📘 View Problems
           </button>
-        )}
 
-        <button
-          onClick={handleLogout}
-          className="bg-red-600 text-white px-4 py-2 rounded"
-        >
-          Logout
-        </button>
+          {user?.role === "admin" && (
+            <button
+              onClick={goToAddProblem}
+              className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition duration-200"
+            >
+              ➕ Add New Problem
+            </button>
+          )}
+
+          <button
+            onClick={handleLogout}
+            className="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded transition duration-200"
+          >
+            🔒 Logout
+          </button>
+        </div>
       </div>
     </div>
   );

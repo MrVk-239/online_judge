@@ -188,7 +188,7 @@ const submitCode = async () => {
       );
     }
   } catch (err) {
-    setOutput('Error: ' + err.message);
+    setOutput('Compilation Error');
   }
 };
 
@@ -342,12 +342,14 @@ return (
     {/* Output Box */}
     <div>
       <label className="block text-sm font-medium mb-1">Output:</label>
-      <textarea
-        className="border rounded p-2 w-full text-sm bg-gray-100"
-        rows="4"
-        value={output}
-        readOnly
-      />
+      <div
+  className={`border rounded p-2 w-full text-sm bg-gray-100 whitespace-pre-wrap ${
+    output === 'Compilation Error' ? 'text-red-600 font-semibold' : 'text-gray-800'
+  }`}
+>
+  {output}
+</div>
+
     </div>
   </div>
 );
