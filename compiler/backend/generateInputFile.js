@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { v4: uuid } = require('uuid');
-
+//input also stored in codes folder only
 const dirInput = path.join(__dirname, 'codes');
 
 if (!fs.existsSync(dirInput)) {

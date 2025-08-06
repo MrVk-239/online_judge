@@ -28,7 +28,6 @@ app.post("/run", async (req, res) => {
     const inputFilePath = generateInputFile(input);
 
     let output;
-    console.log(language);
     switch (language) {
       case 'cpp':
         output = await executeCpp(filePath, inputFilePath);
@@ -48,11 +47,16 @@ app.post("/run", async (req, res) => {
 
     return res.json({ output });
   } catch (error) {
-    res.status(500).json({ error: error.toString() });
+    res.status(500).json({ error: 'compilation error' });
   }
 });
 
 const PORT = process.env.PORT || 8000;
+
+app.get("/", (req, res) => {
+  res.send("🚀 Online Compiler API is running!");
+});
+
 app.listen(PORT, (error) => {
   if (error) {
     console.error("Error starting server:", error);

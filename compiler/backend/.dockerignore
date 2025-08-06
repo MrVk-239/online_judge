@@ -4,8 +4,7 @@ node_modules/
 # Output folders or generated files
 output/
 output.exe
-#codes contain both codes and input files
-codes/ 
+codes/
 
 # Environment variables
 .env
