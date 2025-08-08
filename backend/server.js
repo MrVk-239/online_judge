@@ -7,9 +7,12 @@ import problemRoutes from './routes/problem.js';
 import testcaseRoutes from './routes/testcaseRoutes.js';
 import morgan from 'morgan';
 import submissionRoutes from './routes/submissionRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
+
 
 
 dotenv.config();
+
 const app = express();
 
 app.use(cors());
@@ -19,6 +22,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/testcases', testcaseRoutes);
 app.use('/api', submissionRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.get('/', (req, res) => {
   res.send('Server is working!');
