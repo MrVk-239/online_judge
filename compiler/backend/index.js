@@ -18,28 +18,36 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.post("/run", async (req, res) => {
-  const { language , code, input } = req.body;
+  const { language, code, input } = req.body;
   if (!code) {
     return res.status(400).json({ success: false, error: "Empty code" });
   }
-
   try {
     const filePath = generateFile(language, code);
     const inputFilePath = generateInputFile(input);
 
     let output;
+    const execWithTimeout = async (fn) => {
+      return await Promise.race([
+        fn(filePath, inputFilePath),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Execution timed out (possible infinite loop)")), 3000)
+        )
+      ]);
+    };
+
     switch (language) {
       case 'cpp':
-        output = await executeCpp(filePath, inputFilePath);
+        output = await execWithTimeout(executeCpp);
         break;
       case 'c':
-        output = await executeC(filePath, inputFilePath);
+        output = await execWithTimeout(executeC);
         break;
       case 'python':
-        output = await executePython(filePath, inputFilePath);
+        output = await execWithTimeout(executePython);
         break;
       case 'java':
-        output = await executeJava(filePath, inputFilePath);
+        output = await execWithTimeout(executeJava);
         break;
       default:
         return res.status(400).json({ error: 'Unsupported language' });
@@ -47,9 +55,14 @@ app.post("/run", async (req, res) => {
 
     return res.json({ output });
   } catch (error) {
-    res.status(500).json({ error: 'compilation error' });
+    return res.status(500).json({
+      error: error.message === "Execution timed out (possible infinite loop)"
+        ? error.message
+        : "Compilation/Runtime error"
+    });
   }
 });
+
 
 const PORT = process.env.PORT || 8000;
 

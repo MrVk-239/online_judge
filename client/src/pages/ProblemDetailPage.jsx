@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useParams } from 'react-router-dom';
-import Editor from 'react-simple-code-editor';
-import { highlight, languages } from 'prismjs/components/prism-core';
-import 'prismjs/themes/prism.css';
-import 'prismjs/components/prism-clike';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-cpp';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-python';
-import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
+import Editor from "react-simple-code-editor";
+import { highlight, languages } from "prismjs/components/prism-core";
+import "prismjs/themes/prism.css";
+import "prismjs/components/prism-clike";
+import "prismjs/components/prism-c";
+import "prismjs/components/prism-cpp";
+import "prismjs/components/prism-java";
+import "prismjs/components/prism-python";
+import { useSelector } from "react-redux";
 import ReactMarkdown from "react-markdown";
-
 
 const prismLanguageMap = {
   c: languages.c,
@@ -22,46 +20,43 @@ const prismLanguageMap = {
 };
 
 function ProblemDetailPage() {
-  const { id } = useParams(); // problem ID from URL
+  const { id } = useParams();
   const { user, token } = useSelector((state) => state.auth);
+
   const [problem, setProblem] = useState(null);
   const [testcases, setTestcases] = useState([]);
-  const [language, setLanguage] = useState('cpp');
-  const [code, setCode] = useState('');
-  const [input, setInput] = useState('');
-  const [output, setOutput] = useState('');
+  const [language, setLanguage] = useState("cpp");
+  const [code, setCode] = useState("");
+  const [input, setInput] = useState("");
+  const [output, setOutput] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [aiResponse, setAiResponse] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
 
-
   const navigate = useNavigate();
-
 
   const handleAIReview = async () => {
     try {
       setLoadingAI(true);
       setAiResponse("");
 
-      // Prepare the payload
       const payload = {
         problemTitle: problem.title,
         problemDescription: problem.description,
-        code: code,              // user's code from editor
-        input: input,      // user's custom input if any
-        output: output,          // output from run
+        code,
+        input,
+        output,
       };
 
       const token = localStorage.getItem("token");
 
-      // Send request to backend AI review route
       const { data } = await axios.post(
         "http://localhost:5000/api/ai/review",
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      setAiResponse(data.aiResponse); // assuming backend returns { message: "...ai feedback..." }
+      setAiResponse(data.aiResponse);
     } catch (error) {
       console.error("AI Review error:", error);
       setAiResponse("Error fetching AI review.");
@@ -70,9 +65,6 @@ function ProblemDetailPage() {
     }
   };
 
-
-
-
   useEffect(() => {
     const templates = {
       cpp: `#include <iostream>\nusing namespace std;\nint main() {\n  \n  return 0;\n}`,
@@ -80,23 +72,20 @@ function ProblemDetailPage() {
       java: `public class Main {\n  public static void main(String[] args) {\n    \n  }\n}`,
       python: `# your code here`,
     };
-    setCode(templates[language] || '');
+    setCode(templates[language] || "");
   }, [language]);
-
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(`http://localhost:5000/api/problems/${id}`);
         setProblem(res.data);
+
         const tcRes = await axios.get(
           `http://localhost:5000/api/testcases/problem/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
+
         setTestcases(Array.isArray(tcRes.data) ? tcRes.data : []);
       } catch (err) {
         console.error(err);
@@ -108,34 +97,27 @@ function ProblemDetailPage() {
   const handleAddOrUpdateTestcase = async () => {
     try {
       if (editingId) {
-        await axios.put(`http://localhost:5000/api/testcases/${editingId}`, { input, output }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        await axios.put(
+          `http://localhost:5000/api/testcases/${editingId}`,
+          { input, output },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       } else {
-        await axios.post(`http://localhost:5000/api/testcases`, {
-          input,
-          output,
-          problemId: id,
-        },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+        await axios.post(
+          `http://localhost:5000/api/testcases`,
+          { input, output, problemId: id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
       }
 
-      const tcRes = await axios.get(`http://localhost:5000/api/testcases/problem/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const tcRes = await axios.get(
+        `http://localhost:5000/api/testcases/problem/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+
       setTestcases(Array.isArray(tcRes.data) ? tcRes.data : []);
-      setInput('');
-      setOutput('');
+      setInput("");
+      setOutput("");
       setEditingId(null);
     } catch (err) {
       console.error(err);
@@ -143,26 +125,23 @@ function ProblemDetailPage() {
   };
 
   const handleDelete = async (tcId) => {
-    const confirmed = window.confirm('Are you sure you want to delete this testcase?');
-    if (!confirmed) return;
+    if (!window.confirm("Are you sure you want to delete this testcase?")) return;
 
     try {
       await axios.delete(`http://localhost:5000/api/testcases/${tcId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-      const tcRes = await axios.get(`http://localhost:5000/api/testcases/problem/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      const tcRes = await axios.get(
+        `http://localhost:5000/api/testcases/problem/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       setTestcases(Array.isArray(tcRes.data) ? tcRes.data : []);
     } catch (err) {
       console.error(err);
     }
   };
-
 
   const handleEdit = (tc) => {
     setInput(tc.input);
@@ -172,16 +151,14 @@ function ProblemDetailPage() {
 
   const runCode = async () => {
     try {
-      const res = await axios.post('http://localhost:8000/run', {
+      const res = await axios.post("http://localhost:8000/run", {
         language,
         code,
         input,
       });
-
-      const userOutput = res.data.output.trim();
-      setOutput(userOutput);
+      setOutput(res.data.output.trim());
     } catch (err) {
-      setOutput('Error: ' + err.message);
+      setOutput("Error: " + err.message);
     }
   };
 
@@ -189,7 +166,7 @@ function ProblemDetailPage() {
     try {
       const results = await Promise.all(
         testcases.map(async (tc, index) => {
-          const res = await axios.post('http://localhost:8000/run', {
+          const res = await axios.post("http://localhost:8000/run", {
             language,
             code,
             input: tc.input,
@@ -209,16 +186,13 @@ function ProblemDetailPage() {
       );
 
       const allPassed = results.every((r) => r.passed);
-      await axios.post('http://localhost:5000/api/submissions', {
-        problemId: id,
-        language,
-        code,
-        passed: allPassed,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+
+      await axios.post(
+        "http://localhost:5000/api/submissions",
+        { problemId: id, language, code, passed: allPassed },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
       if (allPassed) {
         setOutput("Code Accepted ✅");
       } else {
@@ -228,18 +202,21 @@ function ProblemDetailPage() {
         );
       }
     } catch (err) {
-      setOutput('Compilation Error');
+      setOutput("Compilation Error/Time limit exceeded");
     }
   };
 
-
-  if (!problem) return <div>Loading...</div>;
+  if (!problem) return <div className="p-6 text-center">Loading...</div>;
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6 bg-white rounded-lg shadow-sm">
-      <h2 className="text-2xl font-bold text-center text-gray-800">{problem.title}</h2>
+    <div className="p-6 max-w-4xl mx-auto space-y-8 bg-white rounded-lg shadow-md">
+      {/* Problem Title */}
+      <h2 className="text-3xl font-bold text-center text-gray-800">
+        {problem.title}
+      </h2>
 
-      <div className="space-y-2 text-gray-700 text-sm">
+      {/* Problem Details */}
+      <div className="space-y-1 text-gray-700 text-sm bg-gray-50 p-4 rounded-md">
         <p><strong>Description:</strong> {problem.description}</p>
         <p><strong>Input Format:</strong> {problem.inputFormat}</p>
         <p><strong>Output Format:</strong> {problem.outputFormat}</p>
@@ -247,19 +224,22 @@ function ProblemDetailPage() {
         <p><strong>Sample Input:</strong> {problem.sampleInput}</p>
         <p><strong>Sample Output:</strong> {problem.sampleOutput}</p>
         <p><strong>Difficulty:</strong> {problem.difficulty}</p>
-        <p><strong>Tags:</strong> {problem.tags?.join(', ')}</p>
+        <p><strong>Tags:</strong> {problem.tags?.join(", ")}</p>
       </div>
 
-      {/* Admin Testcases */}
-      {user?.role === 'admin' && (
-        <div className="space-y-3">
+      {/* Admin Testcase Section */}
+      {user?.role === "admin" && (
+        <div className="space-y-4">
           <h3 className="text-lg font-semibold">Testcases</h3>
 
           {testcases.map((tc) => (
-            <div key={tc._id} className="border border-gray-200 p-3 rounded-md bg-gray-50 text-sm">
+            <div
+              key={tc._id}
+              className="border p-3 rounded-md bg-gray-50 text-sm flex flex-col gap-2"
+            >
               <p><strong>Input:</strong> {tc.input}</p>
               <p><strong>Output:</strong> {tc.output}</p>
-              <div className="mt-2 flex gap-2">
+              <div className="flex gap-2">
                 <button
                   onClick={() => handleEdit(tc)}
                   className="px-3 py-1 bg-yellow-500 text-white text-xs rounded"
@@ -276,9 +256,9 @@ function ProblemDetailPage() {
             </div>
           ))}
 
-          <div className="space-y-2">
+          <div className="space-y-2 bg-gray-50 p-4 rounded-md">
             <h4 className="text-sm font-semibold">
-              {editingId ? 'Edit Testcase' : 'Add New Testcase'}
+              {editingId ? "Edit Testcase" : "Add New Testcase"}
             </h4>
             <input
               type="text"
@@ -298,7 +278,7 @@ function ProblemDetailPage() {
               onClick={handleAddOrUpdateTestcase}
               className="bg-green-600 text-white text-sm px-4 py-1.5 rounded"
             >
-              {editingId ? 'Update Testcase' : 'Add Testcase'}
+              {editingId ? "Update Testcase" : "Add Testcase"}
             </button>
           </div>
         </div>
@@ -315,8 +295,8 @@ function ProblemDetailPage() {
       </div>
 
       {/* Language Selector */}
-      <div className="space-y-1">
-        <label className="block text-sm font-medium">Select Language:</label>
+      <div>
+        <label className="block text-sm font-medium mb-1">Select Language:</label>
         <select
           value={language}
           onChange={(e) => setLanguage(e.target.value)}
@@ -335,15 +315,17 @@ function ProblemDetailPage() {
         <Editor
           value={code}
           onValueChange={(newCode) => setCode(newCode)}
-          highlight={(code) => highlight(code, prismLanguageMap[language], language)}
+          highlight={(code) =>
+            highlight(code, prismLanguageMap[language], language)
+          }
           padding={10}
           style={{
             fontFamily: '"Fira Code", monospace',
             fontSize: 14,
-            minHeight: '200px',
-            backgroundColor: '#f9f9f9',
-            border: '1px solid #ddd',
-            borderRadius: '6px',
+            minHeight: "200px",
+            backgroundColor: "#f9f9f9",
+            border: "1px solid #ddd",
+            borderRadius: "6px",
           }}
         />
       </div>
@@ -367,7 +349,6 @@ function ProblemDetailPage() {
         >
           Run (Custom Input)
         </button>
-
         {testcases.length > 0 && (
           <button
             onClick={submitCode}
@@ -378,13 +359,10 @@ function ProblemDetailPage() {
         )}
       </div>
 
-      {/* Output Box */}
+      {/* Output */}
       <div>
         <label className="block text-sm font-medium mb-1">Output:</label>
-        <div
-          className={`border rounded p-2 w-full text-sm bg-gray-100 whitespace-pre-wrap ${'text-gray-800'
-            }`}
-        >
+        <div className="border rounded p-2 w-full text-sm bg-gray-100 whitespace-pre-wrap text-gray-800">
           {output}
         </div>
 
@@ -398,14 +376,13 @@ function ProblemDetailPage() {
         <button
           onClick={handleAIReview}
           disabled={loadingAI}
-          className="bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50"
+          className="mt-3 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700 disabled:opacity-50"
         >
           {loadingAI ? "Reviewing..." : "AI Review"}
         </button>
       </div>
     </div>
   );
-
 }
 
 export default ProblemDetailPage;

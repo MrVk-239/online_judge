@@ -7,32 +7,28 @@ if (!fs.existsSync(outputPath)) {
     fs.mkdirSync(outputPath, { recursive: true });
 }
 
-const executeCpp = async (filePath,inputFilePath) => {
+const executeCpp = async (filePath, inputFilePath) => {
     const jobID = path.basename(filePath).split('.')[0];
     const outPath = path.join(outputPath, `${jobID}.exe`);
 
     return new Promise((resolve, reject) => {
         const command = inputFilePath
-  ? `g++ "${filePath}" -o "${outPath}" && "${outPath}" < "${inputFilePath}"`
-  : `g++ "${filePath}" -o "${outPath}" && "${outPath}"`;
+            ? `g++ "${filePath}" -o "${outPath}" && timeout 2 "${outPath}" < "${inputFilePath}"`
+            : `g++ "${filePath}" -o "${outPath}" && timeout 2 "${outPath}"`;
 
-
-        exec(command, (error, stdout, stderr) => {
+        exec(command, { timeout: 3000 }, (error, stdout, stderr) => {
             if (error) {
-                return reject({ error, stderr });
+                if (error.killed || error.signal === 'SIGTERM') {
+                    return reject({ type: 'timeout', message: 'Time Limit Exceeded' });
+                }
+                return reject({ type: 'compilation', message: stderr || error.message });
             }
             if (stderr) {
-                console.error(stderr); 
+                return reject({ type: 'runtime', message: stderr });
             }
             resolve(stdout);
         });
     });
 };
-
-// Usage example (safe, absolute path)
-const filePath = path.join(__dirname, 'codes', 'b946cd60-61e1-4c0a-bf62-e75fad426597.cpp');
-executeCpp(filePath)
-    .then(output => console.log("Program Output:\n", output))
-    .catch(err => console.error("Compilation/Execution error:\n", err));
 
 module.exports = { executeCpp };
