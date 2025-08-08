@@ -1,7 +1,7 @@
 // src/features/auth/authService.js
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/auth/';
+const backendURL = import.meta.env.VITE_BACKEND_URL;
+const API_URL = `${backendURL}/api/auth/`;
 
 export const register = async (userData) => {
   const res = await axios.post(API_URL + 'register', userData);

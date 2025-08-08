@@ -19,6 +19,9 @@ const prismLanguageMap = {
   python: languages.python,
 };
 
+const backendURL=import.meta.env.VITE_BACKEND_URL;
+const compilerURL=import.meta.env.VITE_COMPILER_URL;
+
 function ProblemDetailPage() {
   const { id } = useParams();
   const { user, token } = useSelector((state) => state.auth);
@@ -51,7 +54,7 @@ function ProblemDetailPage() {
       const token = localStorage.getItem("token");
 
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/review",
+        `${backendURL}/api/ai/review`,
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -78,11 +81,11 @@ function ProblemDetailPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/problems/${id}`);
+        const res = await axios.get(`${backendURL}/api/problems/${id}`);
         setProblem(res.data);
 
         const tcRes = await axios.get(
-          `http://localhost:5000/api/testcases/problem/${id}`,
+          `${backendURL}/api/testcases/problem/${id}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -98,20 +101,20 @@ function ProblemDetailPage() {
     try {
       if (editingId) {
         await axios.put(
-          `http://localhost:5000/api/testcases/${editingId}`,
+          `${backendURL}/api/testcases/${editingId}`,
           { input, output },
           { headers: { Authorization: `Bearer ${token}` } }
         );
       } else {
         await axios.post(
-          `http://localhost:5000/api/testcases`,
+          `${backendURL}/api/testcases`,
           { input, output, problemId: id },
           { headers: { Authorization: `Bearer ${token}` } }
         );
       }
 
       const tcRes = await axios.get(
-        `http://localhost:5000/api/testcases/problem/${id}`,
+        `${backendURL}/api/testcases/problem/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -128,12 +131,12 @@ function ProblemDetailPage() {
     if (!window.confirm("Are you sure you want to delete this testcase?")) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/testcases/${tcId}`, {
+      await axios.delete(`${backendURL}/api/testcases/${tcId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       const tcRes = await axios.get(
-        `http://localhost:5000/api/testcases/problem/${id}`,
+        `${backendURL}/api/testcases/problem/${id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -151,7 +154,7 @@ function ProblemDetailPage() {
 
   const runCode = async () => {
     try {
-      const res = await axios.post("http://localhost:8000/run", {
+      const res = await axios.post(`${compilerURL}/run`, {
         language,
         code,
         input,
@@ -166,7 +169,7 @@ function ProblemDetailPage() {
     try {
       const results = await Promise.all(
         testcases.map(async (tc, index) => {
-          const res = await axios.post("http://localhost:8000/run", {
+          const res = await axios.post(`${compilerURL}/run`, {
             language,
             code,
             input: tc.input,
@@ -188,7 +191,7 @@ function ProblemDetailPage() {
       const allPassed = results.every((r) => r.passed);
 
       await axios.post(
-        "http://localhost:5000/api/submissions",
+        `${backendURL}/api/submissions`,
         { problemId: id, language, code, passed: allPassed },
         { headers: { Authorization: `Bearer ${token}` } }
       );

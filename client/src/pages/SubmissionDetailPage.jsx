@@ -19,12 +19,13 @@ const languageMap = {
 const SubmissionDetailPage = () => {
   const { id } = useParams();
   const [submission, setSubmission] = useState(null);
+  const backendURL=import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchSubmission = async () => {
   try {
-    const token = localStorage.getItem('token'); // or wherever you're storing the JWT
-    const res = await axios.get(`http://localhost:5000/api/submissionDetail/${id}`, {
+    const token = localStorage.getItem('token'); // storing the JWT
+    const res = await axios.get(`${backendURL}/api/submissionDetail/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

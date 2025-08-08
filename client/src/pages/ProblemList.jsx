@@ -7,14 +7,14 @@ const ProblemsPage = () => {
   const [problems, setProblems] = useState([]);
   const [acceptedProblems, setAcceptedProblems] = useState([]);
   const navigate = useNavigate();
-
+  const backendURL=import.meta.env.VITE_BACKEND_URL;
   const user = useSelector((state) => state.auth.user);
   const { token } = useSelector((state) => state.auth);
 
   useEffect(() => {
     const fetchProblems = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/problems');
+        const res = await axios.get(`${backendURL}/api/problems`);
         setProblems(res.data);
       } catch (err) {
         console.error(err);
@@ -23,7 +23,7 @@ const ProblemsPage = () => {
 
     const fetchAcceptedProblems = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/submissionsAcc/accepted', {
+        const res = await axios.get(`${backendURL}/api/submissionsAcc/accepted`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAcceptedProblems(res.data);
@@ -41,7 +41,7 @@ const ProblemsPage = () => {
     if (!confirm) return;
 
     try {
-      await axios.delete(`http://localhost:5000/api/problems/${id}`, {
+      await axios.delete(`${backendURL}/api/problems/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProblems((prev) => prev.filter((p) => p._id !== id));

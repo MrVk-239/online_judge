@@ -1,6 +1,6 @@
 import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/problems';
+const backendURL=import.meta.env.VITE_BACKEND_URL;
+const API_URL = `${backendURL}/api/problems`;
 
 // GET all problems
 const getProblems = async () => {

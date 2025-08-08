@@ -9,11 +9,12 @@ const MySubmissionsPage = () => {
   const [submissions, setSubmissions] = useState([]);
   const { token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
+  const backendURL=import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const fetchSubmissions = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/${problemId}`, {
+        const res = await axios.get(`${backendURL}/api/${problemId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setSubmissions(res.data);

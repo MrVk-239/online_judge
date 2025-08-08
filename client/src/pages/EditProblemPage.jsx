@@ -13,6 +13,7 @@ const EditProblemPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user, token } = useSelector((state) => state.auth);
+  const backendURL=import.meta.env.VITE_BACKEND_URL;
 
   const [formData, setFormData] = useState({
     title: '',
@@ -31,7 +32,7 @@ const EditProblemPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/problems/${id}`);
+        const res = await axios.get(`${backendURL}/api/problems/${id}`);
         const problem = res.data;
 
         setFormData({
@@ -120,7 +121,7 @@ const EditProblemPage = () => {
     };
 
     try {
-      await axios.put(`http://localhost:5000/api/problems/${id}`, updatedData, {
+      await axios.put(`${backendURL}/api/problems/${id}`, updatedData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert('Problem updated successfully!');

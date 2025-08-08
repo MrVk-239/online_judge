@@ -1,7 +1,7 @@
 // src/features/problem/testcaseService.js
 import axios from 'axios';
-
-const BASE_URL = 'http://localhost:5000/api/testcases';
+const backendURL=import.meta.env.VITE_BACKEND_URL;
+const BASE_URL = `${backendURL}/api/testcases`;
 
 export const fetchTestcases = async (problemId, token) => {
   const res = await axios.get(`${BASE_URL}/${problemId}`, {
