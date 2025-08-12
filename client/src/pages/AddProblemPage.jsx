@@ -7,7 +7,7 @@ const AddProblemPage = () => {
   const { user,token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
   const backendUrl = import.meta.env.VITE_BACKEND_URL
-  console.log(backendUrl);
+  
 
   const [form, setForm] = useState({
     title: '',

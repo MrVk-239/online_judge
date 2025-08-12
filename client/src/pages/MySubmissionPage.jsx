@@ -25,7 +25,6 @@ const MySubmissionsPage = () => {
     fetchSubmissions();
   }, [token, problemId]);
 
-  console.log(submissions);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 px-2">
