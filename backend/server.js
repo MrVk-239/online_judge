@@ -14,8 +14,14 @@ import aiRoutes from './routes/aiRoutes.js';
 dotenv.config();
 
 const app = express();
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+app.use(cors({
+  origin: FRONTEND_URL, 
+  credentials: true, 
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
-app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 app.use('/api/auth', authRoutes);
